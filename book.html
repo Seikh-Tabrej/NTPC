@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Hotel Booking</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #4CAF50;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .booking-section {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 50px 20px;
+    }
+
+    .booking-container {
+      background: white;
+      max-width: 600px;
+      width: 100%;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .input-group input,
+    .input-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Hotel Booking</h1>
+  <p>Please fill out the form to book your room</p>
+</header>
+
+<section class="booking-section">
+  <div class="booking-container">
+    <form id="booking-form">
+      <div class="input-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" required />
+      </div>
+
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" required />
+      </div>
+
+      <div class="input-group">
+        <label for="phone">Phone</label>
+        <input type="text" id="phone" required />
+      </div>
+
+      <div class="input-group">
+        <label for="member">Member Type</label>
+        <select id="member" required onchange="updatePriceAndRooms()">
+          <option value="" disabled selected>Select member</option>
+          <option value="Board of Directors">Board of Directors</option>
+          <option value="general-manager">General Manager</option>
+          <option value="chief-general-manager">Chief General Manager</option>
+          <option value="ed">ED</option>
+          <option value="c-managing-director">C Managing Director</option>
+          <option value="staff">Staff</option>
+          <option value="Employees">Employees</option>
+          <option value="Senior Officials">Senior Officials</option>
+          <option value="Foreign Guests">Foreign Guests</option>
+          <option value="Retired Employees">Retired Employees</option>
+          <option value="Family Members">Family Members</option>
+          <option value="Others">Others</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="room-type">Room Type</label>
+        <select id="room-type" required onchange="updateRoomNumbers()">
+          <option value="ac-room">AC Room</option>
+          <option value="suite">Suite</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="room-number">Room Number</label>
+        <select id="room-number" required>
+          <!-- Room numbers populated here -->
+        </select>
+      </div>
+
+       <div class="input-group">
+        <label for="price">Room Price (₹)</label>
+        <input type="text" id="price" readonly />
+      </div>
+      
+      <div class="input-group">
+        <label for="check-in">Check-in Date</label>
+        <input type="date" id="check-in" required />
+      </div>
+
+      <div class="input-group">
+        <label for="check-out">Check-out Date</label>
+        <input type="date" id="check-out" required />
+      </div>
+
+     
+
+      <button type="submit">Submit Booking</button>
+    </form>
+  </div>
+</section>
+
+<script>
+  const freeMembers = [
+    "Board of Directors",
+    "general-manager",
+    "chief-general-manager",
+    "ed",
+    "c-managing-director"
+  ];
+
+  const roomData = {
+    "ac-room": 18,
+    "suite": 2
+  };
+
+  const roomPrices = {
+    default: 2000,
+    "staff": 1500,
+    "Employees": 1800,
+    "Senior Officials": 2200,
+    "Foreign Guests": 2500,
+    "Retired Employees": 1600,
+    "Family Members": 1400,
+    "Others": 2300
+  };
+
+  const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+
+  function updatePriceAndRooms() {
+    const member = document.getElementById("member").value;
+    const roomTypeSelect = document.getElementById("room-type");
+
+    // Set price
+    const priceInput = document.getElementById("price");
+    if (freeMembers.includes(member)) {
+      priceInput.value = "0";
+    } else {
+      priceInput.value = roomPrices[member] || roomPrices.default;
+    }
+
+    // Filter room type (disable suite if not eligible)
+    for (let option of roomTypeSelect.options) {
+      if (option.value === "suite") {
+        option.disabled = !freeMembers.includes(member);
+      }
+    }
+
+    updateRoomNumbers();
+  }
+
+  function updateRoomNumbers() {
+    const type = document.getElementById("room-type").value;
+    const roomSelect = document.getElementById("room-number");
+    const totalRooms = roomData[type];
+    const booked = bookings.filter(b => b.roomType === type).map(b => +b.roomNumber);
+
+    roomSelect.innerHTML = "";
+    for (let i = 1; i <= totalRooms; i++) {
+      const opt = document.createElement("option");
+      opt.value = i;
+      opt.textContent = `Room ${i}`;
+      if (booked.includes(i)) {
+        opt.disabled = true;
+        opt.textContent += " (Booked)";
+      }
+      roomSelect.appendChild(opt);
+    }
+  }
+
+  document.getElementById("booking-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const member = document.getElementById("member").value;
+    const roomType = document.getElementById("room-type").value;
+    const roomNumber = parseInt(document.getElementById("room-number").value);
+    const checkInDate = document.getElementById("check-in").value;
+    const checkOutDate = document.getElementById("check-out").value;
+    const price = parseInt(document.getElementById("price").value);
+
+    if (new Date(checkOutDate) <= new Date(checkInDate)) {
+      alert("Check-out must be after check-in.");
+      return;
+    }
+
+    const alreadyBooked = bookings.some(b => b.roomType === roomType && b.roomNumber === roomNumber);
+    if (alreadyBooked) {
+      alert("This room is already booked.");
+      return;
+    }
+
+    bookings.push({
+      name, email, phone, member, roomType, roomNumber,
+      checkInDate, checkOutDate, price
+    });
+
+    localStorage.setItem("bookings", JSON.stringify(bookings));
+    alert(`Booking confirmed for Room ${roomNumber} (${roomType})`);
+    location.href = "mybook.html";
+  });
+
+  // Initialize room numbers on page load
+  updateRoomNumbers();
+</script>
+
+</body>
+</html>
