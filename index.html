@@ -201,8 +201,8 @@
           localStorage.removeItem('rememberedUser');
         }
         
-  sessionStorage.setItem("loggedIn", "true");
-  
+  localStorage.setItem("loggedIn", "true");
+
         window.location.href = 'login.html';
       } else {
         error.textContent = "Invalid username or password.";
