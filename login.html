@@ -1,60 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hotel</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+    <section id="header">
+        <a href="#"><img src="image/ntpc2.jpeg" class="id" alt=""></a>
+        
+    
+        <div>
+            <ul id="navbar">
+               <!-- <li><a class="active" href="index.html">Home</a></li>-->
+                <li><a href="book.html">Book Now</a></li>
+                <li><a href="mybook.html">Bookings</a></li>
+                <li><a href="room.html">Room</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="index.html" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+        <a href="#"><img src="image/ntpclog1.jpg" class="id" alt=""></a>
+    </section>
+    
+    <section id="ntpcbg">
+    </section>
 
-  <section id="header">
-    <a href="#"><img src="image/ntpc2.jpeg" class="id" alt=""></a>
+<script>
+  function logout() {
+    localStorage.removeItem("loggedIn"); // or clear()
+  }
+</script>
+<script>
+  if (!localStorage.getItem("loggedIn")) {
+    // If not logged in, redirect to home
+    location.replace("index.html");
+  }
+</script>
 
-    <div>
-      <ul id="navbar">
-        <!-- <li><a class="active" href="index.html">Home</a></li> -->
-        <li><a href="book.html">Book Now</a></li>
-        <li><a href="mybook.html">Bookings</a></li>
-        <li><a href="room.html">Room</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="#" id="logoutBtn">Logout</a></li>
-      </ul>
-    </div>
-
-    <a href="#"><img src="image/ntpclog1.jpg" class="id" alt=""></a>
-  </section>
-
-  <section id="ntpcbg"></section>
-
-  <!-- ✅ Redirect to login if not logged in -->
-  <script>
-    if (!localStorage.getItem("loggedIn")) {
-      location.replace("index.html");
-    }
-  </script>
-
-  <!-- ✅ Proper logout handling -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const logoutBtn = document.getElementById("logoutBtn");
-      logoutBtn.addEventListener("click", function (e) {
-        e.preventDefault();
-        localStorage.removeItem("loggedIn");
-        sessionStorage.clear();
-        location.replace("index.html");
-      });
-    });
-  </script>
-
-  <!-- ✅ Prevent back navigation after logout -->
-  <script>
+    <script>
+  // Prevent going back
+  window.history.pushState(null, "", window.location.href);
+  window.onpopstate = function () {
     window.history.pushState(null, "", window.location.href);
-    window.onpopstate = function () {
-      window.history.pushState(null, "", window.location.href);
-    };
-  </script>
+  };
+</script>
 
 </body>
 </html>
