@@ -202,7 +202,7 @@
         }
         
   localStorage.setItem("loggedIn", "true");
-
+sessionStorage.clear();
        location.replace("login.html");
       } else {
         error.textContent = "Invalid username or password.";
