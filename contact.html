@@ -1,11 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contact Us</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+  <title>Contact Us - NTPC Hotel Booking</title>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: #333;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .contact-card {
+      background-color: #ffffff;
+      padding: 1.5rem;
+      border-radius: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      transition: transform 0.3s ease;
+    }
+
+    .contact-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .contact-card .icon {
+      font-size: 3rem;
+      color: #0073e6;
+      margin-bottom: 1rem;
+    }
+
+    .contact-card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1.3rem;
+      color: #0073e6;
+    }
+
+    .contact-card p {
+      margin: 0.4rem 0;
+      color: #555;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+    }
+  </style>
 </head>
 <body>
-    
+
+  <div class="container">
+    <h1>Contact Us</h1>
+    <p style="text-align:center; margin-bottom: 2rem;">Reach out to our administrators for support or inquiries.</p>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="icon"><i class="fas fa-user-tie"></i></div>
+        <h3>Nilambar Kanth</h3>
+        <p><i class="fas fa-phone"></i> +91 8171216442</p>
+        <p><i class="fas fa-envelope"></i> nilamber.kanth@gmail.com</p>
+      </div>
+
+      <div class="contact-card">
+        <div class="icon"><i class="fas fa-user-tie"></i></div>
+        <h3>Sujeet Kumar</h3>
+        <p><i class="fas fa-phone"></i> +91 8920010694</p>
+        <p><i class="fas fa-envelope"></i>sujeetkumar04@gmail.com</p>
+      </div>
+
+      <div class="contact-card">
+        <div class="icon"><i class="fas fa-user-tie"></i></div>
+        <h3>Sobhit Mani Gopal</h3>
+        <p><i class="fas fa-phone"></i> +91 8960632725</p>
+        <p><i class="fas fa-envelope"></i>smgopal01@ntpc.co.in</p>
+      </div>
+
+  </div>
+
+<div style="text-align: center; padding: 30px;">
+  <button onclick="window.location.href='login.html'" style="
+    background-color: #ffffff;
+    color: #0073e6;
+    margin: 0 0 0.5rem;
+    padding: 12px 24px;
+    font-size: 1.3rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  "> Home</button>
+</div>
+
+<script>
+  if (!sessionStorage.getItem("loggedIn")) {
+    // If not logged in, redirect to home
+    window.location.href = "index.html";
+  }
+</script>
+
 </body>
 </html>

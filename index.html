@@ -1,32 +1,270 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login / Signup</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-container {
+      background: #fff;
+      padding: 2.5rem 2rem;
+      border-radius: 1rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 1.5rem;
+    }
+
+    .tab {
+      cursor: pointer;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      background: #f0f0f0;
+      transition: background 0.3s;
+    }
+
+    .tab.active {
+      background: #4a90e2;
+      color: white;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+      text-align: left;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .checkbox-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .checkbox-row label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    #error,
+    #error-signup {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 1rem;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    
-    <section id="header">
-        <a href="#"><img src="image/ntpc2.jpeg" class="id" alt=""></a>
+  <div class="auth-container">
+    <div class="tabs">
+      <div class="tab active" id="loginTab" onclick="showForm('login')">Login</div>
+      <div class="tab" id="signupTab" onclick="showForm('signup')">Sign Up</div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="loginForm">
+      <div class="form-group">
+        <input type="text" id="loginUsername" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <input type="password" id="loginPassword" placeholder="Password">
+      </div>
+      <div class="checkbox-row">
+        <label>
+          <input type="checkbox" onclick="togglePassword('loginPassword')"> Show Password
+        </label>
+        <label>
+          <input type="checkbox" id="rememberMe"> Remember Me
+        </label>
+      </div>
+      <button onclick="login()">Login</button>
+      <p id="error"></p>
+    </div>
+
+    <!-- Signup Form -->
+    <div id="signupForm" style="display: none;">
+      <div class="form-group">
+        <input type="text" id="signupUsername" placeholder="Username">
+      </div>
+      <div class="form-group">
+        <input type="password" id="signupPassword" placeholder="Password">
+      </div>
+      <div class="checkbox-row">
+        <label>
+          <input type="checkbox" onclick="togglePassword('signupPassword')"> Show Password
+        </label>
+      </div>
+      <button onclick="signup()">Sign Up</button>
+      <p id="error-signup"></p>
+    </div>
+  </div>
+
+  <script>
+    function showForm(type) {
+      document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
+      document.getElementById('signupForm').style.display = type === 'signup' ? 'block' : 'none';
+
+      document.getElementById('loginTab').classList.toggle('active', type === 'login');
+      document.getElementById('signupTab').classList.toggle('active', type === 'signup');
+
+      document.getElementById('error').textContent = '';
+      document.getElementById('error-signup').textContent = '';
+    }
+
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      input.type = input.type === 'password' ? 'text' : 'password';
+    }
+
+    function getUsers() {
+      return JSON.parse(localStorage.getItem('users') || '{}');
+    }
+
+    function saveUsers(users) {
+      localStorage.setItem('users', JSON.stringify(users));
+    }
+
+    function login() {
+      const username = document.getElementById('loginUsername').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const rememberMe = document.getElementById('rememberMe').checked;
+      const error = document.getElementById('error');
+
+      const users = getUsers();
+
+      if (!username || !password) {
+        error.textContent = "Please fill in both fields.";
+        return;
+      }
+
+      if (users[username] && users[username] === password) {
+        if (rememberMe) {
+          localStorage.setItem('rememberedUser', username);
+        } else {
+          localStorage.removeItem('rememberedUser');
+        }
         
+  sessionStorage.setItem("loggedIn", "true");
+  
+        window.location.href = 'login.html';
+      } else {
+        error.textContent = "Invalid username or password.";
+      }
+    }
+
+    function signup() {
+      const username = document.getElementById('signupUsername').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const errorSignup = document.getElementById('error-signup');
+
+      const allowedUsername = "ntpcadmin";
+      const allowedPassword = "ntpc123";
+
+      if (!username || !password) {
+        errorSignup.textContent = "Please fill in both fields.";
+        return;
+      }
+
+      if (username !== allowedUsername || password !== allowedPassword) {
+        errorSignup.textContent = "Only specific ID and password are allowed.";
+        return;
+      }
+
+      const users = getUsers();
+
+      if (users[username]) {
+        errorSignup.textContent = "Username already exists. Try logging in.";
+        return;
+      }
+
+      users[username] = password;
+      saveUsers(users);
+
+      alert("Signup successful! You can now log in.");
+      showForm('login');
+    }
+
+    window.onload = () => {
+      const savedUser = localStorage.getItem('rememberedUser');
+      if (savedUser) {
+        document.getElementById('loginUsername').value = savedUser;
+        document.getElementById('rememberMe').checked = true;
+      }
+    };
+
+
+
+
+
+  </script>
+
+<script>
+  // Prevent going back to the previous page
+  window.history.pushState(null, "", window.location.href);
+  window.onpopstate = function () {
+    window.history.pushState(null, "", window.location.href);
     
-        <div>
-            <ul id="navbar">
-               <!-- <li><a class="active" href="index.html">Home</a></li>-->
-                <li><a href="book.html">Book Now</a></li>
-                <li><a href="mybook.html">Bookings</a></li>
-                <li><a href="room.html">Room</a></li>
-                <li><a href="about.html">About</a></li>
-                <li><a href="contact.html">Contact</a></li>
-            </ul>
-        </div>
-        <a href="#"><img src="image/ntpclog1.jpg" class="id" alt=""></a>
-    </section>
-    
-    <section id="ntpcbg">
-    </section>
+
+  };
+</script>
+
 
 </body>
 </html>

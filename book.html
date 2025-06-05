@@ -3,7 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Hotel Booking</title>
+  <meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
+  <title>Transit Camp Booking</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -69,13 +73,18 @@
     button:hover {
       background-color: #45a049;
     }
+
+    #date-warning {
+      color: red;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
 
 <header>
-  <h1>Hotel Booking</h1>
-  <p>Please fill out the form to book your room</p>
+  <h1>Transit Camp Booking</h1>
+  <p>Please fill out the form.</p>
 </header>
 
 <section class="booking-section">
@@ -105,10 +114,9 @@
           <option value="chief-general-manager">Chief General Manager</option>
           <option value="ed">ED</option>
           <option value="c-managing-director">C Managing Director</option>
-          <option value="staff">Staff</option>
-          <option value="Employees">Employees</option>
-          <option value="Senior Officials">Senior Officials</option>
           <option value="Foreign Guests">Foreign Guests</option>
+          <option value="Govt Employees">Govt Employees</option>
+          <option value="Employees">Employees</option>
           <option value="Retired Employees">Retired Employees</option>
           <option value="Family Members">Family Members</option>
           <option value="Others">Others</option>
@@ -125,12 +133,14 @@
 
       <div class="input-group">
         <label for="room-number">Room Number</label>
-        <select id="room-number" required>
+        <select id="room-number" required onchange="showUnavailableDates()">
           <!-- Room numbers populated here -->
         </select>
       </div>
 
-       <div class="input-group">
+      <div id="date-warning"></div>
+
+      <div class="input-group">
         <label for="price">Room Price (₹)</label>
         <input type="text" id="price" readonly />
       </div>
@@ -145,8 +155,6 @@
         <input type="date" id="check-out" required />
       </div>
 
-     
-
       <button type="submit">Submit Booking</button>
     </form>
   </div>
@@ -158,7 +166,8 @@
     "general-manager",
     "chief-general-manager",
     "ed",
-    "c-managing-director"
+    "c-managing-director",
+    "Foreign Guests"
   ];
 
   const roomData = {
@@ -167,14 +176,12 @@
   };
 
   const roomPrices = {
-    default: 2000,
-    "staff": 1500,
-    "Employees": 1800,
-    "Senior Officials": 2200,
-    "Foreign Guests": 2500,
-    "Retired Employees": 1600,
-    "Family Members": 1400,
-    "Others": 2300
+    default: 1500,
+    "Govt Employees": 40,
+    "Employees": 65,
+    "Retired Employees": 65,
+    "Family Members": 65,
+    "Others": 1500
   };
 
   const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
@@ -183,7 +190,6 @@
     const member = document.getElementById("member").value;
     const roomTypeSelect = document.getElementById("room-type");
 
-    // Set price
     const priceInput = document.getElementById("price");
     if (freeMembers.includes(member)) {
       priceInput.value = "0";
@@ -191,7 +197,6 @@
       priceInput.value = roomPrices[member] || roomPrices.default;
     }
 
-    // Filter room type (disable suite if not eligible)
     for (let option of roomTypeSelect.options) {
       if (option.value === "suite") {
         option.disabled = !freeMembers.includes(member);
@@ -213,11 +218,53 @@
       opt.value = i;
       opt.textContent = `Room ${i}`;
       if (booked.includes(i)) {
-        opt.disabled = true;
         opt.textContent += " (Booked)";
       }
       roomSelect.appendChild(opt);
     }
+    showUnavailableDates();
+  }
+
+  function getUnavailableDatesForRoom(roomType, roomNumber) {
+    return bookings
+      .filter(b => b.roomType === roomType && b.roomNumber === roomNumber)
+      .flatMap(b => {
+        const dates = [];
+        let current = new Date(b.checkInDate);
+        const end = new Date(b.checkOutDate);
+        while (current < end) {
+          dates.push(current.toISOString().split('T')[0]);
+          current.setDate(current.getDate() + 1);
+        }
+        return dates;
+      });
+  }
+
+  function showUnavailableDates() {
+    const roomType = document.getElementById("room-type").value;
+    const roomNumber = parseInt(document.getElementById("room-number").value);
+    const unavailable = new Set(getUnavailableDatesForRoom(roomType, roomNumber));
+    const dateWarning = document.getElementById("date-warning");
+    dateWarning.innerHTML = unavailable.size > 0
+      ? `Unavailable dates for Room ${roomNumber}:<br>${[...unavailable].join(', ')}`
+      : '';
+
+    const checkInInput = document.getElementById("check-in");
+    const checkOutInput = document.getElementById("check-out");
+
+    checkInInput.addEventListener("input", () => {
+      if (unavailable.has(checkInInput.value)) {
+        alert("Check-in date is unavailable for this room.");
+        checkInInput.value = "";
+      }
+    });
+
+    checkOutInput.addEventListener("input", () => {
+      if (unavailable.has(checkOutInput.value)) {
+        alert("Check-out date is unavailable for this room.");
+        checkOutInput.value = "";
+      }
+    });
   }
 
   document.getElementById("booking-form").addEventListener("submit", function (e) {
@@ -238,10 +285,15 @@
       return;
     }
 
-    const alreadyBooked = bookings.some(b => b.roomType === roomType && b.roomNumber === roomNumber);
-    if (alreadyBooked) {
-      alert("This room is already booked.");
-      return;
+    const unavailableDates = new Set(getUnavailableDatesForRoom(roomType, roomNumber));
+    let current = new Date(checkInDate);
+    const end = new Date(checkOutDate);
+    while (current < end) {
+      if (unavailableDates.has(current.toISOString().split('T')[0])) {
+        alert("Selected date range includes unavailable dates.");
+        return;
+      }
+      current.setDate(current.getDate() + 1);
     }
 
     bookings.push({
@@ -254,9 +306,28 @@
     location.href = "mybook.html";
   });
 
-  // Initialize room numbers on page load
   updateRoomNumbers();
 </script>
+
+<div style="text-align: center; padding: 30px;">
+  <button onclick="window.location.href='login.html'" style="
+    background-color: #f7f9fa;
+    color: #45a049;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  ">Home</button>
+</div>
+
+<script>
+  if (!sessionStorage.getItem("loggedIn")) {
+    // If not logged in, redirect to home
+    window.location.href = "index.html";
+  }
+</script>
+
 
 </body>
 </html>

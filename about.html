@@ -3,8 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
   <title>About</title>
   <link rel="stylesheet" href="style.css" />
+  
 </head>
 <style>
      body {
@@ -51,9 +56,26 @@
     </div>
    
 </div>
-<div>
-  <li style="text-align: center;"><a href="index.html">Home</a></li>
+<div style="text-align: center; padding: 30px;">
+  <button onclick="window.location.href='login.html'" style="
+    background-color: whitesmoke;
+    color: black;
+    margin: 0 0 0.5rem;
+    padding: 12px 24px;
+    font-size: 1.3rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  "> Home</button>
 </div>
+
+<script>
+  if (!sessionStorage.getItem("loggedIn")) {
+    // If not logged in, redirect to home
+    window.location.href = "index.html";
+  }
+</script>
+
 
 </body>
 </html>

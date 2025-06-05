@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-store" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+
   <title>My Bookings</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
@@ -32,6 +36,21 @@
       padding: 15px;
       border-radius: 8px;
       box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+      opacity: 1;
+      transition: opacity 0.5s ease-out;
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .fade-out {
+      opacity: 0 !important;
     }
 
     .booking p {
@@ -80,9 +99,11 @@
   <div id="bookings-list"></div>
 </div>
 
+
+
 <script>
   const { jsPDF } = window.jspdf;
-  const bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
+  let bookings = JSON.parse(localStorage.getItem("bookings") || "[]");
 
   function renderBookings() {
     const container = document.getElementById("bookings-list");
@@ -95,7 +116,7 @@
 
     bookings.forEach((b, i) => {
       const div = document.createElement("div");
-      div.className = "booking";
+      div.className = "booking fade-in";
       div.innerHTML = `
         <p><strong>Name:</strong> ${b.name}</p>
         <p><strong>Email:</strong> ${b.email}</p>
@@ -118,9 +139,17 @@
   function downloadPDF(index) {
     const b = bookings[index];
     const doc = new jsPDF();
-    doc.setFontSize(14);
-    doc.text("Hotel Booking Receipt", 20, 20);
+
+    doc.setFontSize(18);
+    doc.setTextColor(40, 40, 40);
+    doc.text("🏨 Hotel Booking Receipt", 20, 20);
+
     doc.setFontSize(12);
+    doc.setTextColor(100);
+    doc.text("Booking Details", 20, 35);
+
+    doc.setFontSize(11);
+    doc.setTextColor(30);
     const lines = [
       `Name: ${b.name}`,
       `Email: ${b.email}`,
@@ -128,11 +157,22 @@
       `Member Type: ${b.member}`,
       `Room Type: ${b.roomType}`,
       `Room Number: ${b.roomNumber}`,
-      `Check-in: ${b.checkInDate}`,
-      `Check-out: ${b.checkOutDate}`,
-      `Price: ₹${b.price}`
+      `Check-in Date: ${b.checkInDate}`,
+      `Check-out Date: ${b.checkOutDate}`,
+      `Total Price: ₹${b.price}`
     ];
-    lines.forEach((line, i) => doc.text(line, 20, 40 + i * 10));
+    let y = 45;
+    lines.forEach((line) => {
+      doc.text(line, 20, y);
+      y += 8;
+    });
+
+    doc.setDrawColor(200);
+    doc.line(20, y + 5, 190, y + 5);
+    doc.setFontSize(10);
+    doc.setTextColor(120);
+    doc.text("Thank you for booking with us!", 20, y + 15);
+
     doc.save(`booking_${b.name.replace(/\s+/g, '_')}_${index + 1}.pdf`);
   }
 
@@ -143,55 +183,97 @@
     }
 
     const doc = new jsPDF();
-    let y = 20;
 
-    doc.setFontSize(14);
-    doc.text("All Bookings Report", 20, y);
-    y += 10;
-
-    doc.setFontSize(10);
     bookings.forEach((b, index) => {
+      if (index !== 0) doc.addPage();
+
+      doc.setFontSize(18);
+      doc.setTextColor(40, 40, 40);
+      doc.text("Hotel Booking Receipt", 20, 20);
+
+      doc.setFontSize(12);
+      doc.setTextColor(100);
+      doc.text(`Booking #${index + 1}`, 20, 35);
+
+      doc.setFontSize(11);
+      doc.setTextColor(30);
       const lines = [
-        `Booking ${index + 1}`,
         `Name: ${b.name}`,
         `Email: ${b.email}`,
         `Phone: ${b.phone}`,
         `Member Type: ${b.member}`,
         `Room Type: ${b.roomType}`,
         `Room Number: ${b.roomNumber}`,
-        `Check-in: ${b.checkInDate}`,
-        `Check-out: ${b.checkOutDate}`,
-        `Price: ₹${b.price}`,
-        "----------------------------"
+        `Check-in Date: ${b.checkInDate}`,
+        `Check-out Date: ${b.checkOutDate}`,
+        `Total Price: ₹${b.price}`
       ];
+      let y = 45;
       lines.forEach(line => {
         doc.text(line, 20, y);
-        y += 6;
-        if (y > 280) {
-          doc.addPage();
-          y = 20;
-        }
+        y += 8;
       });
+
+      doc.setDrawColor(200);
+      doc.line(20, y + 5, 190, y + 5);
+      doc.setFontSize(10);
+      doc.setTextColor(120);
+      doc.text("Thank you for booking with us!", 20, y + 15);
     });
 
     doc.save("all_bookings.pdf");
   }
 
   function deleteBooking(index) {
-    if (!confirm("Are you sure you want to delete this booking?")) return;
-    bookings.splice(index, 1);
-    localStorage.setItem("bookings", JSON.stringify(bookings));
-    renderBookings();
+    const container = document.getElementById("bookings-list").children[index];
+    container.classList.add("fade-out");
+
+    setTimeout(() => {
+      bookings.splice(index, 1);
+      localStorage.setItem("bookings", JSON.stringify(bookings));
+      renderBookings();
+    }, 500);
   }
 
   function clearAll() {
-    if (!confirm("Delete ALL bookings?")) return;
-    localStorage.removeItem("bookings");
-    renderBookings();
+    const bookingItems = document.querySelectorAll(".booking");
+    bookingItems.forEach((item, i) => {
+      item.classList.add("fade-out");
+    });
+
+    setTimeout(() => {
+      localStorage.removeItem("bookings");
+      bookings = [];
+      renderBookings();
+    }, 500);
   }
 
   renderBookings();
 </script>
 
+<div style="text-align: center; padding: 30px;">
+  <button onclick="window.location.href='login.html'" style="
+    background-color: #4CAF50;
+    color: white;
+    padding: 12px 24px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  ">🏠 Home</button>
+</div>
+
+<script>
+  if (!sessionStorage.getItem("loggedIn")) {
+    // If not logged in, redirect to home
+    window.location.href = "index.html";
+  }
+</script>
+
+
 </body>
 </html>
+
+
+
+

@@ -202,8 +202,8 @@ left: 0;
     padding: 9px 8px 6px 8px;
     line-height: 1;
     border-radius: 4px;
-    color: #21e4d7;
-    background-color: #cf6e83;
+    color: black;
+    background-color: #d1e8f2;
 }
 
 #feature .fe-box:nth-child(2) h6{
