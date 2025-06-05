@@ -30,9 +30,13 @@
     </section>
 
 <script>
-  function logout() {
-    localStorage.removeItem("loggedIn"); // or clear()
-  }
+ function logout(event) {
+  event.preventDefault(); // Stop <a> from instantly navigating
+  localStorage.removeItem("loggedIn");
+  sessionStorage.clear();
+  location.replace("index.html"); // Redirect after clearing session
+}
+
 </script>
 <script>
   if (!localStorage.getItem("loggedIn")) {
